@@ -48,6 +48,7 @@
         <!-- blueprint -->
         <!-- cdi -->
         <!-- shell -->
+        <module>karaf-boot-samples/karaf-boot-sample-shell</module>
         <!-- config -->
         <!-- jpa -->
         <!-- servlet -->

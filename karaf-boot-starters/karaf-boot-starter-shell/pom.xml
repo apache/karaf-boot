@@ -23,18 +23,19 @@
 
     <parent>
         <groupId>org.apache.karaf.boot</groupId>
-        <artifactId>karaf-boot-build</artifactId>
+        <artifactId>karaf-boot-starters</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>karaf-boot-starters</artifactId>
-    <packaging>pom</packaging>
+    <artifactId>karaf-boot-starter-shell</artifactId>
 
-    <modules>
-        <module>karaf-boot-starter</module>
-        <module>karaf-boot-starter-ds</module>
-        <module>karaf-boot-starter-shell</module>
-    </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.shell</groupId>
+            <artifactId>org.apache.karaf.shell.core</artifactId>
+            <version>${karaf.version}</version>
+        </dependency>
+    </dependencies>
 
 </project>

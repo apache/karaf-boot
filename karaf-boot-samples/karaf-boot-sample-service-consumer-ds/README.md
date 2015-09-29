@@ -24,7 +24,10 @@ To deploy in Karaf, you have to enable the DS support first. For that, you have 
 
   feature:install scr
 
-Once scr feature installed:
+Once scr feature installed, you have to install a hello service provider. Please use any of karaf-boot-sample-service-provider-*
+deployment first.
+
+Once the service provider is installed:
 
 * you can drop the generated jar file (target/karaf-boot-sample-service-consumer-ds-1.0.jar) in the
 Karaf deploy folder

@@ -19,6 +19,8 @@ To build, simply do:
 
 = Deploy
 
+You have to install a hello service provider first. Please deploy the karaf-boot-sample-service-provider-osgi first.
+
 To deploy in Karaf:
 
 * you can drop the generated jar file (target/karaf-boot-sample-service-provider-osgi-1.0.jar) in the
