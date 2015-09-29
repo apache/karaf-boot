@@ -1,9 +1,16 @@
-* karaf-boot-simple
-    Simple bean
-* karaf-boot-service-provider
-    Service provider
-* karaf-boot-service-consumer
-    Service consumer
+* karaf-boot-sample-service-provider-osgi
+   Expose a service using the "native" Karaf OSGi layer (low level)
+* karaf-boot-sample-service-consumer-osgi
+   Use a service using the "native" Karaf OSGi layer (low level)
+
+* karaf-boot-services-osgi
+    Simple services using OSGi
+* karaf-boot-services-blueprint
+    Simple services using blueprint
+* karaf-boot-services-ds
+    Simple services using DS/SCR
+* karaf-boot-services-cdi
+    Simple services using CDI
 * karaf-boot-config-managed
     Managed by configuration (reload)
 * karaf-boot-servlet

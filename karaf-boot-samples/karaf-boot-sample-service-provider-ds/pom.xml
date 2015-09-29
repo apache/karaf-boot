@@ -22,38 +22,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.karaf.boot</groupId>
-    <artifactId>karaf-boot-build</artifactId>
+    <artifactId>karaf-boot-sample-service-provider-ds</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <packaging>pom</packaging>
-    <description>
-        Apache Karaf Boot provides a simple way to create artifacts ready to be deployed in Karaf.
-    </description>
 
-    <properties>
-        <karaf.version>4.0.1</karaf.version>
-        <osgi.version>6.0.0</osgi.version>
-    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.boot</groupId>
+            <artifactId>karaf-boot-starter-ds</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
-    <modules>
-        <module>karaf-boot-starters</module>
-        <module>karaf-boot-tools</module>
-
-        <!-- TODO reuse @Services & @Reference shell annotations for generic use cases -->
-
-        <!-- Samples -->
-        <module>karaf-boot-samples/karaf-boot-sample-service-provider-osgi</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-consumer-osgi</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-provider-ds</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-consumer-ds</module>
-        <!-- blueprint -->
-        <!-- cdi -->
-        <!-- shell -->
-        <!-- config -->
-        <!-- jpa -->
-        <!-- servlet -->
-        <!-- test -->
-        <!-- rest & soap -->
-        <!-- camel -->
-    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.karaf.boot</groupId>
+                <artifactId>karaf-boot-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
