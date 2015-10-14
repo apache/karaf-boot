@@ -35,12 +35,13 @@
     </properties>
 
     <modules>
+        <!-- Core karaf-boot -->
         <module>karaf-boot-starters</module>
         <module>karaf-boot-tools</module>
-
-        <!-- TODO reuse @Services & @Reference shell annotations for generic use cases -->
+        <!-- embedded mode -->
 
         <!-- Archetypes -->
+        <!-- TODO archetypes -->
 
         <!-- Samples -->
         <!-- services -->
@@ -56,13 +57,14 @@
         <module>karaf-boot-samples/karaf-boot-sample-config</module>
         <!-- jpa -->
         <!-- servlet -->
+        <module>karaf-boot-samples/karaf-boot-sample-servlet</module>
         <!-- webui / angular -->
         <!-- test -->
         <!-- rest & soap -->
         <!-- camel -->
  
         <!-- Demos -->
-        <!-- complete library demos -->
+        <!-- TODO complete library demos -->
     </modules>
 
 </project>

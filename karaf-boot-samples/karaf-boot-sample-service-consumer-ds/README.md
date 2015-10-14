@@ -33,4 +33,4 @@ Once the service provider is installed:
 Karaf deploy folder
 * in the Karaf shell console, do:
 
-  bundle:install -s mvn:karaf-boot-samples/karaf-boot-sample-service-consumer-ds/1.0
+  bundle:install -s mvn:org.apache.karaf.boot/karaf-boot-sample-service-consumer-ds/1.0

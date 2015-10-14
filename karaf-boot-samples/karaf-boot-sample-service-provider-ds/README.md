@@ -32,4 +32,4 @@ Once scr feature installed:
 Karaf deploy folder
 * in the Karaf shell console, do:
 
-  bundle:install -s mvn:karaf-boot-samples/karaf-boot-sample-service-provider-ds/1.0
+  bundle:install -s mvn:org.apache.karaf.boot/karaf-boot-sample-service-provider-ds/1.0

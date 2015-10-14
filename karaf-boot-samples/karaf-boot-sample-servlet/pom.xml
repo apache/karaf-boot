@@ -21,21 +21,27 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.karaf.boot</groupId>
-        <artifactId>karaf-boot-build</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
+    <groupId>org.apache.karaf.boot</groupId>
+    <artifactId>karaf-boot-sample-servlet</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
-    <artifactId>karaf-boot-starters</artifactId>
-    <packaging>pom</packaging>
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.karaf.boot</groupId>
+            <artifactId>karaf-boot-starter-web</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
 
-    <modules>
-        <module>karaf-boot-starter</module>
-        <module>karaf-boot-starter-ds</module>
-        <module>karaf-boot-starter-shell</module>
-        <module>karaf-boot-starter-web</module>
-    </modules>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.karaf.boot</groupId>
+                <artifactId>karaf-boot-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>
