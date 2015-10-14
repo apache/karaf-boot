@@ -21,21 +21,27 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>org.apache.karaf.boot</groupId>
-        <artifactId>karaf-boot-starters</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath>../pom.xml</relativePath>
-    </parent>
-
-    <artifactId>karaf-boot-starter-ds</artifactId>
+    <groupId>org.apache.karaf.boot</groupId>
+    <artifactId>karaf-boot-sample-config</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 
     <dependencies>
         <dependency>
-            <groupId>org.osgi</groupId>
-            <artifactId>osgi.cmpn</artifactId>
-            <version>${osgi.version}</version>
+            <groupId>org.apache.karaf.boot</groupId>
+            <artifactId>karaf-boot-starter-ds</artifactId>
+            <version>${project.version}</version>
         </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.karaf.boot</groupId>
+                <artifactId>karaf-boot-maven-plugin</artifactId>
+                <version>${project.version}</version>
+                <extensions>true</extensions>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -30,7 +30,7 @@
     </description>
 
     <properties>
-        <karaf.version>4.0.1</karaf.version>
+        <karaf.version>4.0.2</karaf.version>
         <osgi.version>6.0.0</osgi.version>
     </properties>
 
@@ -40,7 +40,10 @@
 
         <!-- TODO reuse @Services & @Reference shell annotations for generic use cases -->
 
+        <!-- Archetypes -->
+
         <!-- Samples -->
+        <!-- services -->
         <module>karaf-boot-samples/karaf-boot-sample-service-provider-osgi</module>
         <module>karaf-boot-samples/karaf-boot-sample-service-consumer-osgi</module>
         <module>karaf-boot-samples/karaf-boot-sample-service-provider-ds</module>
@@ -50,11 +53,16 @@
         <!-- shell -->
         <module>karaf-boot-samples/karaf-boot-sample-shell</module>
         <!-- config -->
+        <module>karaf-boot-samples/karaf-boot-sample-config</module>
         <!-- jpa -->
         <!-- servlet -->
+        <!-- webui / angular -->
         <!-- test -->
         <!-- rest & soap -->
         <!-- camel -->
+ 
+        <!-- Demos -->
+        <!-- complete library demos -->
     </modules>
 
 </project>

@@ -58,6 +58,7 @@ public class GenerateMojo extends AbstractMojo {
             felixBundlePlugin.setVersion("3.0.0");
             felixBundlePlugin.setInherited(true);
             felixBundlePlugin.setExtensions(true);
+            // TODO check if a osgi.bnd file is present in the project base directory
             // TODO if jpa-start is provided as persistence.xml location
             configuration = Xpp3DomBuilder.build(new ByteArrayInputStream(("<configuration>" +
                     "<finalName>${project.build.finalName}</finalName>" +
