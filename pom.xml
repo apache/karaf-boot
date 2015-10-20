@@ -42,29 +42,36 @@
 
         <!-- Archetypes -->
         <!-- TODO archetypes -->
-
-        <!-- Samples -->
-        <!-- services -->
-        <module>karaf-boot-samples/karaf-boot-sample-service-provider-osgi</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-consumer-osgi</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-provider-ds</module>
-        <module>karaf-boot-samples/karaf-boot-sample-service-consumer-ds</module>
-        <!-- blueprint -->
-        <!-- cdi -->
-        <!-- shell -->
-        <module>karaf-boot-samples/karaf-boot-sample-shell</module>
-        <!-- config -->
-        <module>karaf-boot-samples/karaf-boot-sample-config</module>
-        <!-- jpa -->
-        <!-- servlet -->
-        <module>karaf-boot-samples/karaf-boot-sample-servlet</module>
-        <!-- webui / angular -->
-        <!-- test -->
-        <!-- rest & soap -->
-        <!-- camel -->
  
         <!-- Demos -->
         <!-- TODO complete library demos -->
     </modules>
+
+    <profiles>
+        <profile>
+            <id>samples</id>
+            <modules>
+                <!-- Samples -->
+                <!-- services -->
+                <module>karaf-boot-samples/karaf-boot-sample-service-provider-osgi</module>
+                <module>karaf-boot-samples/karaf-boot-sample-service-consumer-osgi</module>
+                <module>karaf-boot-samples/karaf-boot-sample-service-provider-ds</module>
+                <module>karaf-boot-samples/karaf-boot-sample-service-consumer-ds</module>
+                <!-- blueprint -->
+                <!-- cdi -->
+                <!-- shell -->
+                <module>karaf-boot-samples/karaf-boot-sample-shell</module>
+                <!-- config -->
+                <module>karaf-boot-samples/karaf-boot-sample-config</module>
+                <!-- jpa -->
+                <!-- servlet -->
+                <module>karaf-boot-samples/karaf-boot-sample-servlet</module>
+                <!-- webui / angular -->
+                <!-- test -->
+                <!-- rest & soap -->
+                <!-- camel -->
+            </modules>
+        </profile>
+    </profiles>
 
 </project>
