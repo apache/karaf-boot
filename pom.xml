@@ -58,6 +58,8 @@
                 <module>karaf-boot-samples/karaf-boot-sample-service-provider-ds</module>
                 <module>karaf-boot-samples/karaf-boot-sample-service-consumer-ds</module>
                 <!-- blueprint -->
+                <module>karaf-boot-samples/karaf-boot-sample-service-provider-blueprint</module>
+                <module>karaf-boot-samples/karaf-boot-sample-service-consumer-blueprint</module>
                 <!-- cdi -->
                 <!-- shell -->
                 <module>karaf-boot-samples/karaf-boot-sample-shell</module>
