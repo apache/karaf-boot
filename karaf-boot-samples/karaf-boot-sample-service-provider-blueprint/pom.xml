@@ -27,11 +27,10 @@
     <artifactId>karaf-boot-sample-service-provider-blueprint</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
-    <!-- TODO  Change DS to blueprint-->
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.boot</groupId>
-            <artifactId>karaf-boot-starter-ds</artifactId>
+            <artifactId>karaf-boot-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
