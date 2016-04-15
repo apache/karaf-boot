@@ -20,73 +20,71 @@ public interface Hibernate {
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     @interface Hbm2DdlAuto {
-        Hbm2DdlAutoType value();
+        Value value();
+        enum Value {
+            Validate,
+            Update,
+            Create,
+            CreateDrop;
+
+            public String toString() {
+                return super.toString().toLowerCase();
+            }
+        }
     }
 
     @ProviderProperty("hibernate.dialect")
     @Target(ElementType.TYPE)
     @Retention(RetentionPolicy.SOURCE)
     @interface Dialect {
-        DialectType value();
-    }
+        Value value();
+        enum Value {
+            Cache71,
+            DataDirectOracle9,
+            DB2390,
+            DB2400,
+            DB2,
+            Derby,
+            Firebird,
+            FrontBase,
+            H2,
+            HSQL,
+            Informix,
+            Ingres10,
+            Ingres9,
+            Ingres,
+            Interbase,
+            JDataStore,
+            Mckoi,
+            MimerSQL,
+            MySQL5,
+            MySQL5InnoDB,
+            MySQL,
+            MySQLInnoDB,
+            MySQLMyISAM,
+            Oracle10g,
+            Oracle8i,
+            Oracle9,
+            Oracle9i,
+            Oracle,
+            Pointbase,
+            PostgresPlus,
+            PostgreSQL,
+            Progress,
+            RDMSOS2200,
+            SAPDB,
+            SQLServer2008,
+            SQLServer,
+            Sybase11,
+            SybaseAnywhere,
+            SybaseASE15,
+            Sybase,
+            Teradata,
+            TimesTen;
 
-    enum DialectType {
-        Cache71,
-        DataDirectOracle9,
-        DB2390,
-        DB2400,
-        DB2,
-        Derby,
-        Firebird,
-        FrontBase,
-        H2,
-        HSQL,
-        Informix,
-        Ingres10,
-        Ingres9,
-        Ingres,
-        Interbase,
-        JDataStore,
-        Mckoi,
-        MimerSQL,
-        MySQL5,
-        MySQL5InnoDB,
-        MySQL,
-        MySQLInnoDB,
-        MySQLMyISAM,
-        Oracle10g,
-        Oracle8i,
-        Oracle9,
-        Oracle9i,
-        Oracle,
-        Pointbase,
-        PostgresPlus,
-        PostgreSQL,
-        Progress,
-        RDMSOS2200,
-        SAPDB,
-        SQLServer2008,
-        SQLServer,
-        Sybase11,
-        SybaseAnywhere,
-        SybaseASE15,
-        Sybase,
-        Teradata,
-        TimesTen;
-
-        public String toString() {
-            return "org.hibernate.dialect." + super.toString() + "Dialect";
-        }
-    }
-
-    enum Hbm2DdlAutoType {
-        Validate,
-        Update,
-        Create,
-        CreateDrop;
-
-        public String toString() {
-            return super.toString().toLowerCase();
+            public String toString() {
+                return "org.hibernate.dialect." + super.toString() + "Dialect";
+            }
         }
     }
 

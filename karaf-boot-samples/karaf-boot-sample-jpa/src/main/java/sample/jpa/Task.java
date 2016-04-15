@@ -28,7 +28,8 @@ import org.apache.karaf.boot.jpa.Provider;
 @PersistentUnit(name = "tasklist", provider = Provider.Hibernate, properties = {
         @Property(name = "hibernate.hbm2ddl.auto", value = "create-drop")
 })
-@Hibernate.Dialect(Hibernate.DialectType.HSQL)
+@Hibernate.Dialect(Hibernate.Dialect.Value.HSQL)
+@Hibernate.Hbm2DdlAuto(Hibernate.Hbm2DdlAuto.Value.CreateDrop)
 @Entity
 @XmlRootElement
 public class Task {
