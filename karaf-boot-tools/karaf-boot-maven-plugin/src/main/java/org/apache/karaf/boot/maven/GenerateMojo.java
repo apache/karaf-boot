@@ -14,6 +14,12 @@ import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 
 @Mojo(name = "generate", threadSafe = true, defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, inheritByDefault = false)
 public class GenerateMojo extends AbstractMojo {
@@ -58,9 +64,59 @@ public class GenerateMojo extends AbstractMojo {
             felixBundlePlugin.setVersion("3.0.0");
             felixBundlePlugin.setInherited(true);
             felixBundlePlugin.setExtensions(true);
-            // TODO check if a osgi.bnd file is present in the project base directory
-            // TODO if jpa-start is provided as persistence.xml location
-            configuration = Xpp3DomBuilder.build(new ByteArrayInputStream(("<configuration>" +
+
+
+            //
+            // Bundle plugin
+            //
+
+            Map<String, String> instructions = new LinkedHashMap<>();
+            instructions.put("Private-Package", "org.apache.karaf.util.tracker");
+            instructions.put("_dsannotations", "*");
+
+            //
+            // Starters supplied instructions
+            //
+            File bndInst = new File(mavenProject.getBasedir(), "target/classes/META-INF/org.apache.karaf.boot.bnd");
+            if (bndInst.isFile()) {
+                List<String> lines =  Files.readAllLines(bndInst.toPath());
+                for (String line : lines) {
+                    if (!line.contains(":")) {
+                        continue;
+                    }
+                    String name = line.substring(0, line.indexOf(':')).trim();
+                    String value = line.substring(line.indexOf(':') + 1).trim();
+                    if (instructions.containsKey(name)) {
+                        instructions.put(name, instructions.get(name) + "," + value);
+                    } else {
+                        instructions.put(name, value);
+                    }
+                }
+                bndInst.delete();
+            }
+
+            //
+            // User supplied instructions
+            //
+            bndInst = new File(mavenProject.getBasedir(), "osgi.bnd");
+            if (bndInst.isFile()) {
+                List<String> lines =  Files.readAllLines(bndInst.toPath());
+                for (String line : lines) {
+                    if (!line.contains(":")) {
+                        continue;
+                    }
+                    String name = line.substring(0, line.indexOf(':')).trim();
+                    String value = line.substring(line.indexOf(':') + 1).trim();
+                    if (instructions.containsKey(name)) {
+                        instructions.put(name, instructions.get(name) + "," + value);
+                    } else {
+                        instructions.put(name, value);
+                    }
+                }
+            }
+
+            StringBuilder config = new StringBuilder();
+            config.append("<configuration>" +
                     "<finalName>${project.build.finalName}</finalName>" +
                     "<outputDirectory>${project.build.outputDirectory}</outputDirectory>" +
                     "<m_mavenSession>${session}</m_mavenSession>" +
@@ -71,11 +127,15 @@ public class GenerateMojo extends AbstractMojo {
                     "<supportedProjectType>bundle</supportedProjectType>" +
                     "<supportedProjectType>war</supportedProjectType>" +
                     "</supportedProjectTypes>" +
-                    "<instructions>" +
-                    "<Private-Package>org.apache.karaf.util.tracker</Private-Package>" +
-                    "<_dsannotations>*</_dsannotations>" +
-                    "</instructions>" +
-                    "</configuration>").getBytes()), "UTF-8");
+                    "<instructions>");
+            for (Map.Entry<String, String> entry : instructions.entrySet()) {
+                config.append("<").append(entry.getKey()).append(">")
+                        .append(entry.getValue())
+                        .append("</").append(entry.getKey()).append(">");
+            }
+            config.append("</instructions>" +
+                    "</configuration>");
+            configuration = Xpp3DomBuilder.build(new StringReader(config.toString()));
             PluginDescriptor felixBundlePluginDescriptor = pluginManager.loadPlugin(felixBundlePlugin, mavenProject.getRemotePluginRepositories(), mavenSession.getRepositorySession());
             MojoDescriptor felixBundleMojoDescriptor = felixBundlePluginDescriptor.getMojo("bundle");
             execution = new MojoExecution(felixBundleMojoDescriptor, configuration);
