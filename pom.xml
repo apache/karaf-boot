@@ -47,6 +47,19 @@
         <!-- TODO complete library demos -->
     </modules>
 
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <inherited>true</inherited>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
     <profiles>
         <profile>
             <id>samples</id>
@@ -61,6 +74,7 @@
                 <module>karaf-boot-samples/karaf-boot-sample-service-provider-blueprint</module>
                 <module>karaf-boot-samples/karaf-boot-sample-service-consumer-blueprint</module>
                 <!-- cdi -->
+                <module>karaf-boot-samples/karaf-boot-sample-cdi</module>
                 <!-- shell -->
                 <module>karaf-boot-samples/karaf-boot-sample-shell</module>
                 <!-- config -->
