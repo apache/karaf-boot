@@ -28,7 +28,7 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.boot</groupId>
-            <artifactId>karaf-boot-starter</artifactId>
+            <artifactId>karaf-boot-starter-karaf</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

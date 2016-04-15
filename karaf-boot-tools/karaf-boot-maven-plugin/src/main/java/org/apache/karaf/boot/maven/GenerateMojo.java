@@ -15,6 +15,7 @@ import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.IOException;
 import java.io.StringReader;
 import java.nio.file.Files;
 import java.util.LinkedHashMap;
@@ -35,86 +36,27 @@ public class GenerateMojo extends AbstractMojo {
 
     public void execute() throws MojoExecutionException {
         try {
-            // invoke Karaf services plugin
-            getLog().info("Invoking karaf-services-maven-plugin");
-            Plugin karafServicesPlugin = new Plugin();
-            karafServicesPlugin.setGroupId("org.apache.karaf.tooling");
-            karafServicesPlugin.setArtifactId("karaf-services-maven-plugin");
-            karafServicesPlugin.setVersion("4.0.1");
-            karafServicesPlugin.setInherited(false);
-            karafServicesPlugin.setExtensions(true);
-            Xpp3Dom configuration = Xpp3DomBuilder.build(new ByteArrayInputStream(("<configuration>" +
-                    "<project>${project}</project>" +
-                    "<activatorProperty>BNDExtension-Bundle-Activator</activatorProperty>" +
-                    "<requirementsProperty>BNDExtension-Require-Capability</requirementsProperty>" +
-                    "<capabilitiesProperty>BNDExtension-Provide-Capability</capabilitiesProperty>" +
-                    "<outputDirectory>${project.build.directory}/generated/karaf-tracker</outputDirectory>" +
-                    "<classLoader>project</classLoader>" +
-                    "</configuration>").getBytes()), "UTF-8");
-            PluginDescriptor karafServicesPluginDescriptor = pluginManager.loadPlugin(karafServicesPlugin, mavenProject.getRemotePluginRepositories(), mavenSession.getRepositorySession());
-            MojoDescriptor karafServicesMojoDescriptor = karafServicesPluginDescriptor.getMojo("service-metadata-generate");
-            MojoExecution execution = new MojoExecution(karafServicesMojoDescriptor, configuration);
-            pluginManager.executeMojo(mavenSession, execution);
-
-            // invoke Felix bundle plugin
-            getLog().info("Invoking maven-bundle-plugin");
-            Plugin felixBundlePlugin = new Plugin();
-            felixBundlePlugin.setGroupId("org.apache.felix");
-            felixBundlePlugin.setArtifactId("maven-bundle-plugin");
-            felixBundlePlugin.setVersion("3.0.0");
-            felixBundlePlugin.setInherited(true);
-            felixBundlePlugin.setExtensions(true);
-
-
             //
-            // Bundle plugin
+            // Felix Bundle plugin
             //
 
             Map<String, String> instructions = new LinkedHashMap<>();
-            instructions.put("Private-Package", "org.apache.karaf.util.tracker");
-            instructions.put("_dsannotations", "*");
-
-            //
             // Starters supplied instructions
-            //
             File bndInst = new File(mavenProject.getBasedir(), "target/classes/META-INF/org.apache.karaf.boot.bnd");
             if (bndInst.isFile()) {
-                List<String> lines =  Files.readAllLines(bndInst.toPath());
-                for (String line : lines) {
-                    if (!line.contains(":")) {
-                        continue;
-                    }
-                    String name = line.substring(0, line.indexOf(':')).trim();
-                    String value = line.substring(line.indexOf(':') + 1).trim();
-                    if (instructions.containsKey(name)) {
-                        instructions.put(name, instructions.get(name) + "," + value);
-                    } else {
-                        instructions.put(name, value);
-                    }
-                }
+                complete(instructions, bndInst);
                 bndInst.delete();
             }
-
-            //
             // User supplied instructions
-            //
             bndInst = new File(mavenProject.getBasedir(), "osgi.bnd");
             if (bndInst.isFile()) {
-                List<String> lines =  Files.readAllLines(bndInst.toPath());
-                for (String line : lines) {
-                    if (!line.contains(":")) {
-                        continue;
-                    }
-                    String name = line.substring(0, line.indexOf(':')).trim();
-                    String value = line.substring(line.indexOf(':') + 1).trim();
-                    if (instructions.containsKey(name)) {
-                        instructions.put(name, instructions.get(name) + "," + value);
-                    } else {
-                        instructions.put(name, value);
-                    }
-                }
+                complete(instructions, bndInst);
             }
-
+            // Verify and use defaults
+            if (instructions.containsKey("Import-Package")) {
+                instructions.put("Import-Package", instructions.get("Import-Package") + ",*");
+            }
+            // Build config
             StringBuilder config = new StringBuilder();
             config.append("<configuration>" +
                     "<finalName>${project.build.finalName}</finalName>" +
@@ -135,13 +77,47 @@ public class GenerateMojo extends AbstractMojo {
             }
             config.append("</instructions>" +
                     "</configuration>");
-            configuration = Xpp3DomBuilder.build(new StringReader(config.toString()));
+            Xpp3Dom configuration = Xpp3DomBuilder.build(new StringReader(config.toString()));
+            // Invoke plugin
+            getLog().info("Invoking maven-bundle-plugin");
+            Plugin felixBundlePlugin = new Plugin();
+            felixBundlePlugin.setGroupId("org.apache.felix");
+            felixBundlePlugin.setArtifactId("maven-bundle-plugin");
+            felixBundlePlugin.setVersion("3.0.0");
+            felixBundlePlugin.setInherited(true);
+            felixBundlePlugin.setExtensions(true);
             PluginDescriptor felixBundlePluginDescriptor = pluginManager.loadPlugin(felixBundlePlugin, mavenProject.getRemotePluginRepositories(), mavenSession.getRepositorySession());
             MojoDescriptor felixBundleMojoDescriptor = felixBundlePluginDescriptor.getMojo("bundle");
-            execution = new MojoExecution(felixBundleMojoDescriptor, configuration);
+            MojoExecution execution = new MojoExecution(felixBundleMojoDescriptor, configuration);
             pluginManager.executeMojo(mavenSession, execution);
+
         } catch (Exception e) {
             throw new MojoExecutionException("karaf-boot-maven-plugin failed", e);
+        }
+    }
+
+    private void complete(Map<String, String> instructions, File bndInst) throws IOException {
+        List<String> lines =  Files.readAllLines(bndInst.toPath());
+        for (String line : lines) {
+            if (!line.contains(":")) {
+                continue;
+            }
+            String name = line.substring(0, line.indexOf(':')).trim();
+            String value = line.substring(line.indexOf(':') + 1).trim();
+            boolean prepend = false;
+            if (name.startsWith("PREPEND-")) {
+                prepend = true;
+                name = name.substring("PREPEND-".length());
+            }
+            if (instructions.containsKey(name)) {
+                if (prepend) {
+                    instructions.put(name, value + "," + instructions.get(name));
+                } else {
+                    instructions.put(name, instructions.get(name) + "," + value);
+                }
+            } else {
+                instructions.put(name, value);
+            }
         }
     }
 
