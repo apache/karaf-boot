@@ -74,6 +74,8 @@
                 <!-- blueprint -->
                 <module>karaf-boot-samples/karaf-boot-sample-service-provider-blueprint</module>
                 <module>karaf-boot-samples/karaf-boot-sample-service-consumer-blueprint</module>
+                <!-- blueprint annotations -->
+                <module>karaf-boot-samples/karaf-boot-sample-service-blueprint-annotation</module>
                 <!-- cdi -->
                 <module>karaf-boot-samples/karaf-boot-sample-cdi</module>
                 <!-- shell -->
