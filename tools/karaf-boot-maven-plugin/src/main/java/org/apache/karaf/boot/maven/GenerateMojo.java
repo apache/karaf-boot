@@ -13,7 +13,6 @@ import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 
-import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
@@ -47,11 +46,6 @@ public class GenerateMojo extends AbstractMojo {
                 complete(instructions, bndInst);
                 bndInst.delete();
             }
-            // User supplied instructions
-            bndInst = new File(mavenProject.getBasedir(), "osgi.bnd");
-            if (bndInst.isFile()) {
-                complete(instructions, bndInst);
-            }
             // Verify and use defaults
             if (instructions.containsKey("Import-Package")) {
                 instructions.put("Import-Package", instructions.get("Import-Package") + ",*");
@@ -69,7 +63,8 @@ public class GenerateMojo extends AbstractMojo {
                     "<supportedProjectType>bundle</supportedProjectType>" +
                     "<supportedProjectType>war</supportedProjectType>" +
                     "</supportedProjectTypes>" +
-                    "<instructions>");
+                    "<instructions>" +
+                    "<_include>-bnd.bnd</_include>"); // include user bnd file if present
             for (Map.Entry<String, String> entry : instructions.entrySet()) {
                 config.append("<").append(entry.getKey()).append(">")
                         .append(entry.getValue())
