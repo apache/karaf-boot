@@ -34,7 +34,6 @@
     <modules>
         <module>karaf-boot-starter</module>
         <module>karaf-boot-starter-karaf</module>
-        <module>karaf-boot-starter-ds</module>
         <module>karaf-boot-starter-shell</module>
         <module>karaf-boot-starter-web</module>
         <module>karaf-boot-starter-jpa</module>
