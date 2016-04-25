@@ -22,12 +22,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.karaf.boot</groupId>
-    <artifactId>karaf-boot-samples-ds</artifactId>
+    <artifactId>karaf-boot-sample-ds</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <modules>
-        <module>config</module>
         <module>service-consumer</module>
         <module>service-provider</module>
         <module>shell</module>

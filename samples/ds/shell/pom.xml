@@ -22,7 +22,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.apache.karaf.boot</groupId>
-    <artifactId>karaf-boot-sample-shell</artifactId>
+    <artifactId>karaf-boot-sample-ds-shell</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <dependencies>

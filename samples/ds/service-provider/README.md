@@ -1,35 +1,26 @@
-== karaf-boot-sample-service-provider-ds ==
+== karaf-boot-sample-ds-service-provider ==
 
-This sample exposes an OSGi service using the Karaf util classe and annotation.
+Exposes and configures a service using declarative services
 
 = Design
 
-The service "contract" is describe by the Hello interface. It's a very simple service that expose one operation (hello).
-The service client send a message (String) to the hello service and he gets a response.
+The service "contract" is described by the Hello interface. It's a very simple service that expose one operation (hello).
+The service client sends a message (String) to the hello service and he gets a response.
 
-The HelloServiceImpl is very simple: it prefixes the message with "Hello".
+Additionally the example shows how to inject configuration into a service by using the type safe configurations of DS 1.3.
+
+The HelloServiceImpl is very simple: it prefixes the message with "Hello" and adds the configured name.
 
 We use the @Component DS annotation on HelloServiceImpl implementation in order to expose the service.
 
-You don't think anything else: karaf-boot will generate all the plumbing for you, and you will directly have a ready
-to use artifact.
-
 = Build
-
-To build, simply do:
 
   mvn clean install
 
 = Deploy
 
-To deploy in Karaf, you have to enable the DS support first. For that, you have to install the scr feature:
+We enable DS support and install the example
 
   feature:install scr
-
-Once scr feature installed:
-
-* you can drop the generated jar file (target/karaf-boot-sample-service-provider-ds-1.0.jar) in the
-Karaf deploy folder
-* in the Karaf shell console, do:
-
   bundle:install -s mvn:org.apache.karaf.boot/karaf-boot-sample-service-provider-ds/1.0
+

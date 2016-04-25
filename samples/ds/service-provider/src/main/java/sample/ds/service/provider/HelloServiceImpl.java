@@ -16,16 +16,36 @@
  */
 package sample.ds.service.provider;
 
+import org.osgi.service.component.annotations.Activate;
 import org.osgi.service.component.annotations.Component;
+import org.osgi.service.metatype.annotations.Designate;
+import org.osgi.service.metatype.annotations.ObjectClassDefinition;
 
 /**
  * Simple implementation of the hello service..
  */
 @Component
+@Designate(ocd = SampleConfig.class)
 public class HelloServiceImpl implements HelloService {
 
+    private String name;
+
     public String hello(String message) {
-        return "Hello " + message + " !";
+        return String.format("Hello %s my name is %s!", message, name);
+    }
+    
+    @Activate
+
+    public void activate(SampleConfig sampleConfig) {
+        this.name = sampleConfig.name();
     }
 
+
+}
+
+@ObjectClassDefinition(name = "Sample Configuration", pid = "org.apache.karaf.boot.sample.config")
+@interface SampleConfig {
+    String name() default "default";
+    int intProperty() default 0;
+    boolean booleanProperty() default false;
 }

@@ -25,7 +25,8 @@ import sample.ds.service.provider.HelloService;
 @Component
 public class HelloServiceClient implements Runnable {
 
-    private HelloService helloService;
+    @Reference
+    HelloService helloService;
 
     private Thread thread;
 
@@ -49,11 +50,6 @@ public class HelloServiceClient implements Runnable {
                 // nothing to do
             }
         }
-    }
-
-    @Reference
-    public void setHelloService(HelloService helloService) {
-        this.helloService = helloService;
     }
 
 }
