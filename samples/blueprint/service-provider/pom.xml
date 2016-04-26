@@ -22,20 +22,8 @@
     <dependencies>
         <dependency>
             <groupId>org.apache.karaf.boot</groupId>
-            <artifactId>karaf-boot-starter</artifactId>
+            <artifactId>karaf-boot-starter-blueprint</artifactId>
             <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.ops4j.pax.cdi</groupId>
-            <artifactId>pax-cdi-api</artifactId>
-            <version>0.5.0</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-            <optional>true</optional>
         </dependency>
     </dependencies>
 

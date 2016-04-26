@@ -6,6 +6,9 @@ import javax.lang.model.element.TypeElement;
 import javax.tools.Diagnostic.Kind;
 import javax.tools.FileObject;
 import javax.tools.StandardLocation;
+
+import org.apache.aries.blueprint.annotation.Bean;
+
 import java.io.ByteArrayOutputStream;
 import java.io.CharArrayWriter;
 import java.io.IOException;
@@ -15,8 +18,6 @@ import java.io.Reader;
 import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
-
-import org.apache.aries.blueprint.annotation.Bean;
 
 public class BlueprintProcessor extends AbstractProcessor {
 
