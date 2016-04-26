@@ -25,6 +25,8 @@ import org.apache.karaf.boot.jpa.PersistentUnit;
 import org.apache.karaf.boot.jpa.Property;
 import org.apache.karaf.boot.jpa.Provider;
 
+import javanet.staxutils.IndentingXMLStreamWriter;
+
 public class JpaProcessor extends AbstractProcessor {
 
     public JpaProcessor() {
@@ -60,8 +62,7 @@ public class JpaProcessor extends AbstractProcessor {
     public void process(Writer writer, Map<PersistentUnit, List<? extends AnnotationMirror>> units) throws Exception {
         Set<String> puNames = new HashSet<String>();
         XMLOutputFactory xof =  XMLOutputFactory.newInstance();
-        //XMLStreamWriter w = new IndentingXMLStreamWriter(xof.createXMLStreamWriter(writer));
-        XMLStreamWriter w = xof.createXMLStreamWriter(writer);
+        XMLStreamWriter w = new IndentingXMLStreamWriter(xof.createXMLStreamWriter(writer));
         w.setDefaultNamespace("http://java.sun.com/xml/ns/persistence");
         w.writeStartDocument();
         w.writeStartElement("persistence");
