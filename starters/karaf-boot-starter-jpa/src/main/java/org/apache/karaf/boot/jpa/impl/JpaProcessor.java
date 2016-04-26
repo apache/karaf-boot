@@ -1,6 +1,9 @@
 package org.apache.karaf.boot.jpa.impl;
 
+import java.io.CharArrayWriter;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -48,12 +51,17 @@ public class JpaProcessor extends AbstractProcessor {
         }
         if (!units.isEmpty()) {
             try {
-                FileObject o = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT,
+                FileObject o = processingEnv.getFiler().createResource(StandardLocation.SOURCE_OUTPUT,
                                                                        "", "META-INF/persistence.xml");
                 process(o.openWriter(), units);
                 processingEnv.getMessager().printMessage(Kind.NOTE, "Generated META-INF/persistence.xml");
             } catch (Exception e) {
                 processingEnv.getMessager().printMessage(Kind.ERROR, "Error: " + e.getMessage());
+            }
+            try (PrintWriter w = appendResource("META-INF/org.apache.karaf.boot.bnd")) {
+                w.println("Private-Package: META-INF");
+            } catch (Exception e) {
+                processingEnv.getMessager().printMessage(Kind.ERROR, "Error writing to META-INF/org.apache.karaf.boot.bnd: " + e.getMessage());
             }
         }
         return true;
@@ -168,4 +176,33 @@ public class JpaProcessor extends AbstractProcessor {
         }
     }
 
+    private PrintWriter appendResource(String resource) throws IOException {
+        try {
+            FileObject o = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "",
+                                                                   resource);
+            return new PrintWriter(o.openWriter());
+        } catch (Exception e) {
+            try {
+                FileObject o = processingEnv.getFiler().getResource(StandardLocation.CLASS_OUTPUT, "",
+                                                                    resource);
+                CharArrayWriter baos = new CharArrayWriter();
+                try (Reader r = o.openReader(true)) {
+                    char[] buf = new char[4096];
+                    int l;
+                    while ((l = r.read(buf)) > 0) {
+                        baos.write(buf, 0, l);
+                    }
+                }
+                o.delete();
+                o = processingEnv.getFiler().createResource(StandardLocation.CLASS_OUTPUT, "", resource);
+                Writer w = o.openWriter();
+                w.write(baos.toCharArray());
+                return new PrintWriter(w);
+            } catch (Exception e2) {
+                e2.addSuppressed(e);
+                e2.printStackTrace();
+                throw e2;
+            }
+        }
+    }
 }
