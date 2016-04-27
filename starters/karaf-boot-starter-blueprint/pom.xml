@@ -42,14 +42,24 @@
             <version>1.0.0</version>
         </dependency>
         <dependency>
-            <groupId>org.ops4j.pax.cdi</groupId>
-            <artifactId>pax-cdi-api</artifactId>
-            <version>0.5.0</version>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.cmpn</artifactId>
+            <version>${osgi.version}</version>
         </dependency>
         <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <groupId>org.ops4j.pax.cdi</groupId>
+            <artifactId>pax-cdi-api</artifactId>
+            <version>${pax.cdi.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.enterprise</groupId>
+            <artifactId>cdi-api</artifactId>
+            <version>1.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.geronimo.specs</groupId>
+            <artifactId>geronimo-atinject_1.0_spec</artifactId>
+            <version>1.0</version>
         </dependency>
     </dependencies>
 

@@ -32,6 +32,8 @@ import javanet.staxutils.IndentingXMLStreamWriter;
 
 public class JpaProcessor extends AbstractProcessor {
 
+    private boolean useHibernate;
+
     public JpaProcessor() {
     }
 
@@ -59,7 +61,11 @@ public class JpaProcessor extends AbstractProcessor {
                 processingEnv.getMessager().printMessage(Kind.ERROR, "Error: " + e.getMessage());
             }
             try (PrintWriter w = appendResource("META-INF/org.apache.karaf.boot.bnd")) {
-                w.println("Private-Package: META-INF");
+                w.println("Private-Package: META-INF.*");
+                w.println("Meta-Persistence: META-INF/persistence.xml");
+                if (useHibernate) {
+                    w.println("Import-Package: org.hibernate.proxy, javassist.util.proxy");
+                }
             } catch (Exception e) {
                 processingEnv.getMessager().printMessage(Kind.ERROR, "Error writing to META-INF/org.apache.karaf.boot.bnd: " + e.getMessage());
             }
@@ -164,6 +170,7 @@ public class JpaProcessor extends AbstractProcessor {
         if (pu.provider() != null) {
             switch (pu.provider()) {
             case Hibernate:
+                useHibernate = true;
                 return "org.hibernate.jpa.HibernatePersistenceProvider";
             default:
                 // TODO

@@ -18,20 +18,21 @@ package sample.jpa;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
-import javax.xml.bind.annotation.XmlRootElement;
 
 import org.apache.karaf.boot.jpa.Hibernate;
 import org.apache.karaf.boot.jpa.PersistentUnit;
 import org.apache.karaf.boot.jpa.Property;
 import org.apache.karaf.boot.jpa.Provider;
 
-@PersistentUnit(name = "tasklist", provider = Provider.Hibernate, properties = {
-        @Property(name = "hibernate.hbm2ddl.auto", value = "create-drop")
-})
+@PersistentUnit( //
+    name = "task", provider = Provider.Hibernate, properties = //
+    {
+     @Property(name = "hibernate.hbm2ddl.auto", value = "create-drop"),
+     @Property(name = "javax.persistence.jdbc.driver", value = "org.apache.derby.jdbc.EmbeddedDriver"),
+     @Property(name = "javax.persistence.jdbc.url", value = "jdbc:derby:memory:DSFTEST;create=true")
+    })
 @Hibernate.Dialect(Hibernate.Dialect.Value.HSQL)
-@Hibernate.Hbm2DdlAuto(Hibernate.Hbm2DdlAuto.Value.CreateDrop)
 @Entity
-@XmlRootElement
 public class Task {
     @Id
     Integer id;
@@ -39,7 +40,6 @@ public class Task {
 
     public Task() {
     }
-
 
     public Task(Integer id, String title) {
         super();

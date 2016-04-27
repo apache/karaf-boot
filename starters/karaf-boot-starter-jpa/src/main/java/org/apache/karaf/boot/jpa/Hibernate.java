@@ -22,13 +22,19 @@ public interface Hibernate {
     @interface Hbm2DdlAuto {
         Value value();
         enum Value {
-            Validate,
-            Update,
-            Create,
-            CreateDrop;
+            Validate("validate"),
+            Update("update"),
+            Create("create"),
+            CreateDrop("create-drop");
+            
+            private String value;
+
+            private Value(String value) {
+                this.value = value;
+            }
 
             public String toString() {
-                return super.toString().toLowerCase();
+                return value;
             }
         }
     }
