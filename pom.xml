@@ -44,8 +44,9 @@
         <!-- Archetypes -->
         <!-- TODO archetypes -->
  
-        <!-- Demos -->
-        <module>samples</module> 
+        <!-- Samples -->
+	<!-- As samples don't use karaf-boot parent pom, they should not be part of the reactor -->
+        <!-- <module>samples</module> -->
         <!-- TODO complete library demos -->
     </modules>
 
