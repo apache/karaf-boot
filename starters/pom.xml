@@ -39,6 +39,7 @@
         <module>karaf-boot-starter-jpa</module>
         <module>karaf-boot-starter-cdi</module>
         <module>karaf-boot-starter-blueprint</module>
+        <module>plugin-api</module>
     </modules>
 
 </project>

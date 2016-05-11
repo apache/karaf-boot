@@ -1,0 +1,16 @@
+<configuration>
+    <finalName>${project.build.finalName}</finalName>
+    <outputDirectory>${project.build.outputDirectory}</outputDirectory>
+    <m_mavenSession>${session}</m_mavenSession>
+    <project>${project}</project>
+    <buildDirectory>${project.build.directory}</buildDirectory>
+    <supportedProjectTypes>
+        <supportedProjectType>jar</supportedProjectType>
+        <supportedProjectType>bundle</supportedProjectType>
+        <supportedProjectType>war</supportedProjectType>
+    </supportedProjectTypes>
+    <instructions>
+        <_include>target/org.apache.karaf.boot.bnd</_include>
+        <_include>-bnd.bnd</_include>
+    </instructions>
+</configuration>
