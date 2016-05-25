@@ -46,9 +46,13 @@ public class GenerateMojo extends AbstractMojo {
 
     private final class BuildStreamFactory implements StreamFactory {
         @Override
-        public OutputStream create(File file) throws IOException {
-            file.getParentFile().mkdirs();
-            return buildContext.newFileOutputStream(file);
+        public OutputStream create(File file) {
+            try {
+                file.getParentFile().mkdirs();
+                return buildContext.newFileOutputStream(file);
+            } catch (IOException e) {
+                throw new RuntimeException("Error creating file " + file, e);
+            }
         }
     }
 
