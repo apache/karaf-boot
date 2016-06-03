@@ -11,6 +11,7 @@ import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -23,12 +24,8 @@ import org.apache.maven.model.Plugin;
 import org.apache.maven.model.Resource;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.BuildPluginManager;
-import org.apache.maven.plugin.InvalidPluginDescriptorException;
 import org.apache.maven.plugin.MojoExecution;
 import org.apache.maven.plugin.MojoExecutionException;
-import org.apache.maven.plugin.PluginDescriptorParsingException;
-import org.apache.maven.plugin.PluginNotFoundException;
-import org.apache.maven.plugin.PluginResolutionException;
 import org.apache.maven.plugin.descriptor.MojoDescriptor;
 import org.apache.maven.plugin.descriptor.PluginDescriptor;
 import org.apache.maven.plugins.annotations.Component;
@@ -38,23 +35,12 @@ import org.apache.maven.plugins.annotations.Parameter;
 import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.apache.xbean.finder.ClassFinder;
+import org.codehaus.plexus.util.xml.Xpp3Dom;
 import org.codehaus.plexus.util.xml.Xpp3DomBuilder;
 import org.sonatype.plexus.build.incremental.BuildContext;
 
 @Mojo(name = "generate", threadSafe = true, defaultPhase = LifecyclePhase.PROCESS_CLASSES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME, inheritByDefault = false)
 public class GenerateMojo extends AbstractMojo {
-
-    private final class BuildStreamFactory implements StreamFactory {
-        @Override
-        public OutputStream create(File file) {
-            try {
-                file.getParentFile().mkdirs();
-                return buildContext.newFileOutputStream(file);
-            } catch (IOException e) {
-                throw new RuntimeException("Error creating file " + file, e);
-            }
-        }
-    }
 
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     private MavenProject mavenProject;
@@ -74,50 +60,96 @@ public class GenerateMojo extends AbstractMojo {
     public void execute() throws MojoExecutionException {
         try {
             File buildDir = new File(project.getBuild().getDirectory());
-            File generatedDir = new File(buildDir, "generated-resources");
-            Resource resource = new Resource();
-            resource.setDirectory(generatedDir.getPath());
-            project.addResource(resource);
-            ClassFinder finder = createProjectScopeFinder();
-            List<Class<? extends BootPlugin>> plugins = finder.findImplementations(BootPlugin.class);
-            Map<String, List<String>> combined = new HashMap<String, List<String>>();
-            for (Class<? extends BootPlugin> pluginClass : plugins) {
-                BootPlugin plugin = pluginClass.newInstance();
-                Class<? extends Annotation> annotation = plugin.getAnnotation();
-                List<Class<?>> classes = finder.findAnnotatedClasses(annotation);
-                if (!classes.isEmpty()) {
-                    Map<String, List<String>> headers = plugin.enhance(classes, generatedDir, new BuildStreamFactory());
-                    combine(combined, headers);
-                }
-            }
-            Map<String, List<String>> headers = new HashMap<String, List<String>>();
-            headers.put("Import-Package", Arrays.asList("*"));
-            combine(combined, headers);
-            File bndInst = new File(buildDir, "org.apache.karaf.boot.bnd");
-            writeBndFile(bndInst, combined);
+            File generatedDir = createGeneratedDir(buildDir);
+            
+            URLClassLoader loader = projectClassLoader();
+            handleBootPlugins(loader, buildDir, generatedDir);
+            handleMavenPlugins(loader);
 
-            InputStream is = this.getClass().getResourceAsStream("/configuration.xml");
-            MojoExecution execution = new MojoExecution(getBundleMojo(), Xpp3DomBuilder.build(is, "utf-8"));
-            pluginManager.executeMojo(mavenSession, execution);
+            runMavenBundlePlugin();
 
         } catch (Exception e) {
             throw new MojoExecutionException("karaf-boot-maven-plugin failed", e);
         }
     }
 
-    private MojoDescriptor getBundleMojo() throws PluginNotFoundException, PluginResolutionException,
-        PluginDescriptorParsingException, InvalidPluginDescriptorException {
-        getLog().info("Invoking maven-bundle-plugin");
-        Plugin felixBundlePlugin = new Plugin();
-        felixBundlePlugin.setGroupId("org.apache.felix");
-        felixBundlePlugin.setArtifactId("maven-bundle-plugin");
-        felixBundlePlugin.setVersion("3.0.0");
-        felixBundlePlugin.setInherited(true);
-        felixBundlePlugin.setExtensions(true);
-        PluginDescriptor felixBundlePluginDescriptor = pluginManager.loadPlugin(felixBundlePlugin, mavenProject.getRemotePluginRepositories(), mavenSession.getRepositorySession());
-        MojoDescriptor felixBundleMojoDescriptor = felixBundlePluginDescriptor.getMojo("bundle");
-        return felixBundleMojoDescriptor;
+    private void handleMavenPlugins(URLClassLoader loader) throws Exception {
+        Enumeration<URL> resources = loader.getResources("karaf-boot/plugins.xml");
+        while (resources.hasMoreElements()) {
+            URL res = resources.nextElement();
+            executePluginDef(res.openStream());
+        }
     }
+
+    private void executePluginDef(InputStream is) throws Exception {
+        Xpp3Dom pluginDef = Xpp3DomBuilder.build(is, "utf-8");
+        Plugin plugin = loadPlugin(pluginDef);
+        Xpp3Dom config = pluginDef.getChild("configuration");
+        PluginDescriptor pluginDesc = pluginManager.loadPlugin(plugin, 
+                                                               mavenProject.getRemotePluginRepositories(), 
+                                                               mavenSession.getRepositorySession());
+        Xpp3Dom executions = pluginDef.getChild("executions");
+        
+        for ( Xpp3Dom execution : executions.getChildren()) {
+            Xpp3Dom goals = execution.getChild("goals");
+            for (Xpp3Dom goal : goals.getChildren()) {
+                MojoDescriptor desc = pluginDesc.getMojo(goal.getValue());
+                pluginManager.executeMojo(mavenSession, new MojoExecution(desc, config));
+            }
+        }
+    }
+
+    Plugin loadPlugin(Xpp3Dom pluginDef) {
+        String groupId = pluginDef.getChild("groupId").getValue();
+        String artifactId = pluginDef.getChild("artifactId").getValue();
+        String version = pluginDef.getChild("version").getValue();
+        Plugin plugin = new Plugin();
+        plugin.setGroupId(groupId);
+        plugin.setArtifactId(artifactId);
+        plugin.setVersion(version);
+        return plugin;
+    }
+
+    private File createGeneratedDir(File buildDir) {
+        File generatedDir = new File(buildDir, "generated-resources");
+        Resource resource = new Resource();
+        resource.setDirectory(generatedDir.getPath());
+        project.addResource(resource);
+        return generatedDir;
+    }
+
+    private void handleBootPlugins(URLClassLoader loader, File buildDir, File generatedDir)
+        throws MalformedURLException, InstantiationException, IllegalAccessException, IOException {
+        ClassFinder finder = new ClassFinder(loader, Arrays.asList(loader.getURLs()));
+        List<Class<? extends BootPlugin>> plugins = finder.findImplementations(BootPlugin.class);
+        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        for (Class<? extends BootPlugin> pluginClass : plugins) {
+            applyBootPlugin(generatedDir, finder, headers, pluginClass);
+        }
+        addImportDefault(headers);
+        File bndInst = new File(buildDir, "org.apache.karaf.boot.bnd");
+        writeBndFile(bndInst, headers);
+    }
+
+    private void applyBootPlugin(File generatedDir, ClassFinder finder, Map<String, List<String>> combined,
+                                 Class<? extends BootPlugin> pluginClass)
+        throws InstantiationException, IllegalAccessException {
+        BootPlugin plugin = pluginClass.newInstance();
+        Class<? extends Annotation> annotation = plugin.getAnnotation();
+        List<Class<?>> classes = finder.findAnnotatedClasses(annotation);
+        if (!classes.isEmpty()) {
+            Map<String, List<String>> headers = plugin.enhance(classes, generatedDir, new BuildStreamFactory());
+            combine(combined, headers);
+        }
+    }
+
+    private void addImportDefault(Map<String, List<String>> combined) {
+        Map<String, List<String>> headers = new HashMap<String, List<String>>();
+        headers.put("Import-Package", Arrays.asList("*"));
+        combine(combined, headers);
+    }
+    
+
 
     private void writeBndFile(File bndInst, Map<String, List<String>> combined) throws IOException {
         try (
@@ -142,19 +174,47 @@ public class GenerateMojo extends AbstractMojo {
         }
     }
 
-    private ClassFinder createProjectScopeFinder() throws MalformedURLException {
+    private URLClassLoader projectClassLoader() throws MalformedURLException {
         List<URL> urls = new ArrayList<URL>();
-
         urls.add(new File(project.getBuild().getOutputDirectory()).toURI().toURL());
-        for (Object artifactO : project.getArtifacts()) {
-            Artifact artifact = (Artifact) artifactO;
+        for (Artifact artifact : project.getArtifacts()) {
             File file = artifact.getFile();
             if (file != null) {
                 urls.add(file.toURI().toURL());
             }
         }
-        ClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
-        return new ClassFinder(loader, urls);
+        URLClassLoader loader = new URLClassLoader(urls.toArray(new URL[urls.size()]), getClass().getClassLoader());
+        return loader;
     }
 
+    private void runMavenBundlePlugin() throws Exception {
+        InputStream is = this.getClass().getResourceAsStream("/configuration.xml");
+        MojoExecution execution = new MojoExecution(getMavenBundleMojo(), Xpp3DomBuilder.build(is, "utf-8"));
+        getLog().info("Invoking maven-bundle-plugin");
+        pluginManager.executeMojo(mavenSession, execution);
+    }
+
+    private MojoDescriptor getMavenBundleMojo() throws Exception {
+        Plugin plugin = new Plugin();
+        plugin.setGroupId("org.apache.felix");
+        plugin.setArtifactId("maven-bundle-plugin");
+        plugin.setVersion("3.0.0");
+        plugin.setInherited(true);
+        plugin.setExtensions(true);
+        PluginDescriptor desc = pluginManager.loadPlugin(plugin, mavenProject.getRemotePluginRepositories(), mavenSession.getRepositorySession());
+        return desc.getMojo("bundle");
+    }
+    
+
+    private final class BuildStreamFactory implements StreamFactory {
+        @Override
+        public OutputStream create(File file) {
+            try {
+                file.getParentFile().mkdirs();
+                return buildContext.newFileOutputStream(file);
+            } catch (IOException e) {
+                throw new RuntimeException("Error creating file " + file, e);
+            }
+        }
+    }
 }
